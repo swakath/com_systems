@@ -1,4 +1,4 @@
-%Code to perform conventional AM 
+%Code to perform DSB_SC
 %Coded by S U Swakath
 %% --------- Generating message signal ----------------
 clc;clear all;close all;
@@ -33,9 +33,9 @@ xlabel("frequency(Hz)")
 ylabel("Amplitude")
 
 %% -----------Performing AM Modulation--------------- 
-amod = 0.1; %Modulation index (amod<=1)
+Ac = 10; %Carrier frequency amplitude
 fc = 1000; %Carrier frequency in Hz
-[yc,carrier] = modulation(ym,amod,fc,t); %Computing modulated signal 
+[yc,carrier] = modulation(ym,Ac,fc,t); %Computing modulated signal 
 Yc_fft = fftshift(fft(yc))/length(yc);%modulated signal dft
 
 %plotting Passband signal time domain and frequency domain plots
@@ -63,8 +63,8 @@ xlabel('time(s)')
 ylabel('Amplitude')
 
 %% -----------Performing AM demodulation--------
-demodulatedSignal = demodulation(yc,fc,fs,t); %computing received signal
-demodulatedSignal_fft =fftshift( fft(demodulatedSignal))/length(demodulatedSignal);
+demodulatedSignal = demodulation(yc,Ac,fc,fs,t); %computing received signal
+demodulatedSignal_fft = fftshift(fft(demodulatedSignal))/length(demodulatedSignal);
 w = (0:(2*pi)/Nfft:2*pi*(1-1/Nfft))/pi;
 
 %plotting received signal, time domain and frequency domain plots
@@ -89,20 +89,14 @@ ylabel("Amplitude");
 disp('computation completed')
 
 %% --------------- Functions ------------------
-function [modulatedSignal,carrierSignal] = modulation(signal,a_mod,fc,t)
-    min_signal = min(signal);
-    Ac = (abs(min_signal))/a_mod;
-    modulatedSignal = Ac*((1+a_mod*signal).*(cos(2*pi*fc*t)));
+function [modulatedSignal,carrierSignal] = modulation(signal,Ac,fc,t)
+    modulatedSignal = Ac*(signal).*(cos(2*pi*fc*t));
     carrierSignal = Ac*(cos(2*pi*fc*t));
 end
 
-function [demodulatedSignal] = demodulation(passbandSignal,fc,fs,t)
+function [demodulatedSignal] = demodulation(passbandSignal,Ac,fc,fs,t)
     temp = 2*passbandSignal.*cos(2*pi*fc*t);
-    temp_fft = fft(temp)/length(temp);
-    temp = temp - temp_fft(1);
     [b,a] = butter(4,fc*2/(fs),'low');
     demodulatedSignal = filter(b,a,temp);
-    gain = min(demodulatedSignal);
-    gain = sqrt(abs(gain));
-    demodulatedSignal = demodulatedSignal/gain;
+    demodulatedSignal = demodulatedSignal/Ac;
 end

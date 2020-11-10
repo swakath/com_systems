@@ -1,4 +1,4 @@
-%Code to perform conventional AM 
+%Code to perform SSB_SC AM 
 %Coded by S U Swakath
 %% --------- Generating message signal ----------------
 clc;clear all;close all;
@@ -35,20 +35,16 @@ ylabel("Amplitude")
 %% -----------Performing AM Modulation--------------- 
 amod = 0.1; %Modulation index (amod<=1)
 fc = 1000; %Carrier frequency in Hz
-[yc,carrier] = modulation(ym,amod,fc,t); %Computing modulated signal 
+[yc,carrier] = modulation(ym,fc,t); %Computing modulated signal 
 Yc_fft = fftshift(fft(yc))/length(yc);%modulated signal dft
 
 %plotting Passband signal time domain and frequency domain plots
 figure(2)
 subplot(2,1,1)
 plot(t,yc,'b')
-hold on
-plot(t,ym,'r')
-hold off
 title("Modulated signal (Time domain)")
 xlabel("time(s)")
 ylabel("Amplitude")
-legend("Modulated signal", "Message signal");
 
 subplot(2,1,2)
 plot(f,abs(Yc_fft))
@@ -89,20 +85,14 @@ ylabel("Amplitude");
 disp('computation completed')
 
 %% --------------- Functions ------------------
-function [modulatedSignal,carrierSignal] = modulation(signal,a_mod,fc,t)
-    min_signal = min(signal);
-    Ac = (abs(min_signal))/a_mod;
-    modulatedSignal = Ac*((1+a_mod*signal).*(cos(2*pi*fc*t)));
-    carrierSignal = Ac*(cos(2*pi*fc*t));
+function [modulatedSignal,carrierSignal] = modulation(signal,fc,t)
+    hilbert_signal =  imag(hilbert(signal));  
+    modulatedSignal = signal.*(cos(2*pi*fc*t)) + hilbert_signal.*(sin(2*pi*fc*t));
+    carrierSignal = (cos(2*pi*fc*t));
 end
 
 function [demodulatedSignal] = demodulation(passbandSignal,fc,fs,t)
     temp = 2*passbandSignal.*cos(2*pi*fc*t);
-    temp_fft = fft(temp)/length(temp);
-    temp = temp - temp_fft(1);
     [b,a] = butter(4,fc*2/(fs),'low');
     demodulatedSignal = filter(b,a,temp);
-    gain = min(demodulatedSignal);
-    gain = sqrt(abs(gain));
-    demodulatedSignal = demodulatedSignal/gain;
 end
