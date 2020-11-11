@@ -1,4 +1,4 @@
-%Code to perform SSB_SC AM 
+%Code to performing SSB_SC 
 %Coded by S U Swakath
 %% --------- Generating message signal ----------------
 clc;clear all;close all;
@@ -33,9 +33,9 @@ xlabel("frequency(Hz)")
 ylabel("Amplitude")
 
 %% -----------Performing AM Modulation--------------- 
-amod = 0.1; %Modulation index (amod<=1)
 fc = 1000; %Carrier frequency in Hz
 [yc,carrier] = modulation(ym,fc,t); %Computing modulated signal 
+
 Yc_fft = fftshift(fft(yc))/length(yc);%modulated signal dft
 
 %plotting Passband signal time domain and frequency domain plots
@@ -60,8 +60,8 @@ ylabel('Amplitude')
 
 %% -----------Performing AM demodulation--------
 demodulatedSignal = demodulation(yc,fc,fs,t); %computing received signal
-demodulatedSignal_fft =fftshift( fft(demodulatedSignal))/length(demodulatedSignal);
-w = (0:(2*pi)/Nfft:2*pi*(1-1/Nfft))/pi;
+demodulatedSignal_fft =fftshift( fft(demodulatedSignal));
+demodulatedSignal_fft = demodulatedSignal_fft/length(demodulatedSignal);
 
 %plotting received signal, time domain and frequency domain plots
 figure(4)
@@ -76,23 +76,26 @@ title("Demodulated Signal (Frequency domain)");
 xlabel("frequency(Hz)");
 ylabel("Amplitude");
 
-%phase plots
-% figure(5)
-% subplot(2,1,1)
-% plot(f,angle(Ym_fft))
-% subplot(2,1,2)
-% plot(f,angle(demodulatedSignal_fft))
 disp('computation completed')
 
 %% --------------- Functions ------------------
 function [modulatedSignal,carrierSignal] = modulation(signal,fc,t)
+%This function takes a signal in time domain signal and computes its
+%corresponding modulatedSignal using SSB-SC modulation scheme.
+%Lower side band SSB-SC is performed using this function.
+%To compute the modulatedSignal the function takes, carrier wave 
+%frequency(fc) in Hz and time vector (t) in s.
     hilbert_signal =  imag(hilbert(signal));  
-    modulatedSignal = signal.*(cos(2*pi*fc*t)) + hilbert_signal.*(sin(2*pi*fc*t));
-    carrierSignal = (cos(2*pi*fc*t));
+    modulatedSignal= signal.*cos(2*pi*fc*t)+hilbert_signal.*sin(2*pi*fc*t);
+    carrierSignal = cos(2*pi*fc*t);
 end
 
 function [demodulatedSignal] = demodulation(passbandSignal,fc,fs,t)
-    temp = 2*passbandSignal.*cos(2*pi*fc*t);
-    [b,a] = butter(4,fc*2/(fs),'low');
-    demodulatedSignal = filter(b,a,temp);
+%This function takes passbandSignal of SSB-SC modulation  
+%and demodulates the signal using coherent detection.
+%The carrier frequency is fc. A 4th order butterworth filter is used as 
+%a low pass filter with cutoff as fc.
+    temp = 2*passbandSignal.*cos(2*pi*fc*t);%coherent detection
+    [b,a] = butter(4,fc*2/(fs),'low');%butterworth filter
+    demodulatedSignal = filter(b,a,temp);%applying butterworth filter
 end

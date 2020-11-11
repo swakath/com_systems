@@ -1,4 +1,4 @@
-%Code to perform conventional AM 
+%Code to performing conventional AM 
 %Coded by S U Swakath
 %% --------- Generating message signal ----------------
 clc;clear all;close all;
@@ -35,7 +35,7 @@ ylabel("Amplitude")
 %% -----------Performing AM Modulation--------------- 
 amod = 0.1; %Modulation index (amod<=1)
 fc = 1000; %Carrier frequency in Hz
-[yc,carrier] = modulation(ym,amod,fc,t); %Computing modulated signal 
+[yc,carrier] = modulation(ym,amod,fc,t); %Computing modulated signal
 Yc_fft = fftshift(fft(yc))/length(yc);%modulated signal dft
 
 %plotting Passband signal time domain and frequency domain plots
@@ -63,9 +63,9 @@ xlabel('time(s)')
 ylabel('Amplitude')
 
 %% -----------Performing AM demodulation--------
-demodulatedSignal = demodulation(yc,fc,fs,t); %computing received signal
-demodulatedSignal_fft =fftshift( fft(demodulatedSignal))/length(demodulatedSignal);
-w = (0:(2*pi)/Nfft:2*pi*(1-1/Nfft))/pi;
+demodulatedSignal = demodulation(yc,fc,fs,t); %computing demodulated signal
+demodulatedSignal_fft = fftshift( fft(demodulatedSignal)); 
+demodulatedSignal_fft = demodulatedSignal_fft/length(demodulatedSignal);
 
 %plotting received signal, time domain and frequency domain plots
 figure(4)
@@ -80,29 +80,33 @@ title("Demodulated Signal (Frequency domain)");
 xlabel("frequency(Hz)");
 ylabel("Amplitude");
 
-%phase plots
-% figure(5)
-% subplot(2,1,1)
-% plot(f,angle(Ym_fft))
-% subplot(2,1,2)
-% plot(f,angle(demodulatedSignal_fft))
 disp('computation completed')
 
 %% --------------- Functions ------------------
 function [modulatedSignal,carrierSignal] = modulation(signal,a_mod,fc,t)
-    min_signal = min(signal);
-    Ac = (abs(min_signal))/a_mod;
-    modulatedSignal = Ac*((1+a_mod*signal).*(cos(2*pi*fc*t)));
-    carrierSignal = Ac*(cos(2*pi*fc*t));
+%This function takes a signal in time domain signal and computes its
+%corresponding modulatedSignal using conventional AM modulation scheme.
+%To compute the modulatedSignal the function takes a_mod (a_mod<=1),
+%carrier wave frequency (fc) in Hz and time vector (t) in s
+    
+    min_signal = min(signal); %minimum value of the given signal
+    Ac = (abs(min_signal))/a_mod; %carrier wave amplitude
+    modulatedSignal = Ac*((1+a_mod*signal).*(cos(2*pi*fc*t)));%modulation 
+    carrierSignal = Ac*(cos(2*pi*fc*t));%carrier wave
 end
 
 function [demodulatedSignal] = demodulation(passbandSignal,fc,fs,t)
-    temp = 2*passbandSignal.*cos(2*pi*fc*t);
+%This function takes passbandSignal of conventional AM modulation  
+%and demodulates the signal using coherent detection.
+%The carrier frequency is fc. A 4th order butterworth filter is used as 
+%a low pass filter with cutoff as fc. DC value offset and gain is 
+%eliminated to generate the original signal.
+    temp = 2*passbandSignal.*cos(2*pi*fc*t); 
     temp_fft = fft(temp)/length(temp);
-    temp = temp - temp_fft(1);
-    [b,a] = butter(4,fc*2/(fs),'low');
-    demodulatedSignal = filter(b,a,temp);
+    temp = temp - temp_fft(1);%removing DC offset
+    [b,a] = butter(4,fc*2/(fs),'low'); %low pass filter
+    demodulatedSignal = filter(b,a,temp); 
     gain = min(demodulatedSignal);
     gain = sqrt(abs(gain));
-    demodulatedSignal = demodulatedSignal/gain;
+    demodulatedSignal = demodulatedSignal/gain;%removing the gain 
 end
