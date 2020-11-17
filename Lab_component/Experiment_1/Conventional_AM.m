@@ -1,5 +1,5 @@
 %Code to performing conventional AM 
-%Coded by S U Swakath
+%Coded by S U Swakath Updated on 12th Nov 2020
 %% --------- Generating message signal ----------------
 clc;clear all;close all;
 fm = 200 ; %Message signal frequency in Hz
