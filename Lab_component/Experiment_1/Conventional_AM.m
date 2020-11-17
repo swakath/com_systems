@@ -81,7 +81,9 @@ xlabel("frequency(Hz)");
 ylabel("Amplitude");
 
 disp('computation completed')
-
+envelop = abs(hilbert(yc));
+figure(5)
+plot(t,envelop);
 %% --------------- Functions ------------------
 function [modulatedSignal,carrierSignal] = modulation(signal,a_mod,fc,t)
 %This function takes a signal in time domain signal and computes its
