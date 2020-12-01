@@ -9,7 +9,7 @@ nCycles = 10; %Number of cycles of message signal
 t = 0:1/fs:((T*nCycles)-(1/fs));
 Am = 5; %Message signal amplitude
 
-ym = Am*sin(2*pi*2*fm*t)+ Am*cos(2*pi*fm*t);  %Message signal
+ym = Am*cos(2*pi*fm*t);  %Message signal
 
 %% --------Frequency and Time domain Plot of Message signal-----------
 %computing frequency domain representation of ym
@@ -93,7 +93,8 @@ function [modulatedSignal,carrierSignal] = modulation(signal,a_mod,fc,t)
     
     min_signal = min(signal); %minimum value of the given signal
     Ac = (abs(min_signal))/a_mod; %carrier wave amplitude
-    modulatedSignal = Ac*((1+a_mod*signal).*(cos(2*pi*fc*t)));%modulation 
+    signalNorm = signal/abs(min_signal);
+    modulatedSignal = Ac*((1+a_mod*signalNorm).*(cos(2*pi*fc*t)));%modulation 
     carrierSignal = Ac*(cos(2*pi*fc*t));%carrier wave
 end
 
@@ -101,14 +102,11 @@ function [demodulatedSignal] = demodulation(passbandSignal,fc,fs,t)
 %This function takes passbandSignal of conventional AM modulation  
 %and demodulates the signal using coherent detection.
 %The carrier frequency is fc. A 4th order butterworth filter is used as 
-%a low pass filter with cutoff as fc. DC value offset and gain is 
+%a low pass filter with cutoff as fc. DC value offset is 
 %eliminated to generate the original signal.
     temp = 2*passbandSignal.*cos(2*pi*fc*t); 
     temp_fft = fft(temp)/length(temp);
     temp = temp - temp_fft(1);%removing DC offset
     [b,a] = butter(4,fc*2/(fs),'low'); %low pass filter
-    demodulatedSignal = filter(b,a,temp); 
-    gain = min(demodulatedSignal);
-    gain = sqrt(abs(gain));
-    demodulatedSignal = demodulatedSignal/gain;%removing the gain 
+    demodulatedSignal = filter(b,a,temp);  
 end
