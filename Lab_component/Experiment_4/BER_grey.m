@@ -1,4 +1,4 @@
-% Time code computes Bit Error Rate (BER) vs SNR plot for a QPSK modulation
+% This code computes Bit Error Rate (BER) vs SNR plot for a QPSK modulation
 % scheme with gray labelling in Additive White Gaussain Noise. Plots the
 % theoritical and simulation results
 %% Theoritical BER

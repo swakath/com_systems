@@ -9,7 +9,7 @@ Roll Number: 180020036
 
 * Letter_Error_Graph and Word_Error_Graph .jpg files are letter error rate vs snr graph and word error rate vs snr graph respectively
 
-* Please not in case if you are running Main_Word_Error.m, the program takes 50 words to plot the graph, hence it takes long time to execute. To compute faster reduce the number of words.
+* Please note in case if you are running Main_Word_Error.m, the program takes 50 words to plot the graph, hence it takes long time to execute. To compute faster reduce the number of words.
 
 Thank You
 
