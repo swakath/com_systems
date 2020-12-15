@@ -1,28 +1,29 @@
 % This code finds theoritical Bit Error Rate(BER) for different SNR values 
-% and compaires the results with practically calculated BER for BPSK.
-% Coded by S U Swakath. Last updated on 18th Nov 2020
+% and compaires the results with practically calculated BER for
+% Differential BPSK.
+% Coded by S U Swakath. Last updated on 12th Dec 2020
 %% Theoritical BER
 SNR = 0:0.1:15; %Vector containing all SNR values for computation in dB
 lengthSNR = length(SNR); %SNR vector length
-BER_Theory = zeros(1,lengthSNR); %Vector to store Theoritical BER 
+BER_TheoryB = zeros(1,lengthSNR); %Vector to store Theoritical BER 
 %Calculating Theoritical BER
 for i=1:lengthSNR
-    BER_Theory(i) = qfunc(sqrt(2*(10^(SNR(i)/10))));
+    BER_TheoryB(i) = 0.5*exp(-(10^(SNR(i)/10)));
 end
 %% Practical BER
 signalLen = 100000; %Length of signal
 BER_Practical = zeros(1,lengthSNR);%vector to store practical BER 
 signal = randi([0 1],1,signalLen);%generating signal of random 0s and 1s
-nSamples = 1000; %number of iteration per SNR for BER calculation
+nSamples = 100; %number of iteration per SNR for BER calculation
 currentBER = 0; %variable to store BER for each SNR value
 
 %computing Practical BER 
 for i = 1:lengthSNR
     for j = 1:nSamples
         %modulation of given signal for ith SNR value
-        modulatedSignal = bpsk_modulation(signal,SNR(i)); 
+        modulatedSignal = dbpsk_modulation(signal,SNR(i)); 
         %demodulating the modulatedSignal
-        demodulatedSignal = bpsk_demodulation(modulatedSignal);
+        demodulatedSignal = dbpsk_demodulation(modulatedSignal);
         errorMat = signal~=demodulatedSignal;
         %adding the error for the current sample to the overall error
         currentBER = currentBER + sum(errorMat);
@@ -32,10 +33,14 @@ for i = 1:lengthSNR
     %Adding the final calculated BER to the vector
     BER_Practical(i) = currentBER/signalLen;
     currentBER = 0;
+    if(mod(i,5)==0)
+        disp(i);
+    end
 end
 
 %% Plotting
-semilogy(SNR,BER_Theory);%plotting the Theoritical BER
+figure(1)
+semilogy(SNR,BER_TheoryB);%plotting the Theoritical BER
 hold on
 semilogy(SNR,BER_Practical); %plotting Practical BER.
 hold off
