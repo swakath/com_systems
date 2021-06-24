@@ -9,5 +9,4 @@ Roll Number: 180020036
 
 * BER_plot.jpg it the final graph obtained between Bit Error Rate vs Signal to Noise Ratio.
 
-Thank You
 
