@@ -11,5 +11,4 @@ Roll Number: 180020036
 
 * Please note in case if you are running Main_Word_Error.m, the program takes 50 words to plot the graph, hence it takes long time to execute. To compute faster reduce the number of words.
 
-Thank You
 
